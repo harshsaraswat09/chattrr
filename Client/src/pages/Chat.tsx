@@ -4,7 +4,6 @@ import { BACKEND_URL } from "../lib/config";
 import Header from "../components/Header";
 import { Copy, Check, MessageCircle, Send } from "lucide-react";
 
-
 interface MessageType {
   text: string;
   isMe: boolean;
@@ -15,55 +14,56 @@ export default function Chat() {
   const [messages, setMessages] = useState<MessageType[]>([]);
   const [input, setInput] = useState("");
   const [copied, setCopied] = useState(false);
-
   const socketRef = useRef<WebSocket | null>(null);
   const scrollRef = useRef<HTMLDivElement>(null);
 
+  // 1. Copy to Clipboard Logic
   const handleCopy = () => {
     if (roomId) {
       navigator.clipboard.writeText(roomId);
       setCopied(true);
-      setTimeout(() => {
-        setCopied(false);
-      }, 2000);
+      setTimeout(() => setCopied(false), 2000);
     }
   };
 
+  // 2. Auto Scroll to Bottom
   useEffect(() => {
     scrollRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
 
-  // Web Socket Connection
+  // 3. WebSocket Connection
   useEffect(() => {
-    const ws = new WebSocket(BACKEND_URL)
-    socketRef.current = ws
+    const ws = new WebSocket(BACKEND_URL);
+    socketRef.current = ws;
 
     ws.onopen = () => {
-        ws.send(JSON.stringify({
-            type: "join",
-            payload: {roomId}
-        }))
-    }
+      ws.send(JSON.stringify({
+        type: "join",
+        payload: { roomId }
+      }));
+    };
 
-    ws.onmessage = (event) =>{
-        setMessages((prev) => [...prev, { text: event.data, isMe: false}])
-    }
-  
+    ws.onmessage = (event) => {
+      setMessages((prev) => [...prev, { text: event.data, isMe: false }]);
+    };
+
     return () => {
-      ws.close()
-    }
-  }, [roomId])
+      ws.close();
+    };
+  }, [roomId]);
 
+  // 4. Send Message Logic
   const sendMessage = () => {
     if (!input.trim() || !socketRef.current) return;
+
     socketRef.current.send(JSON.stringify({
-        type: "chat",
-        payload: { message: input }
-    }))
+      type: "chat",
+      payload: { message: input }
+    }));
 
     setMessages((prev) => [...prev, { text: input, isMe: true }]);
     setInput("");
-  }
+  };
 
   return (
     <div className="h-screen flex flex-col bg-white dark:bg-neutral-950 transition-colors duration-500 overflow-hidden text-neutral-900 dark:text-neutral-100">
@@ -149,4 +149,3 @@ export default function Chat() {
     </div>
   );
 }
-
