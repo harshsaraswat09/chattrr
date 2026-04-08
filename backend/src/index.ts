@@ -17,11 +17,11 @@ interface User {
 
 let allSockets: User[] = []; // Saare connected users ka data yahan rahega
 
-wss.on("connection", (socket) => {
+wss.on("connection", (socket: WebSocket) => {
   console.log("Naya banda connect hua! ");
 
   // Jab user koi message bhejta hai
-  socket.on("message", (message) => {
+  socket.on("message", (message: string) => {
     // Message hamesha 'Buffer' (bytes) mein aata hai, use string banao phir JSON object
     const parsedMessage = JSON.parse(message.toString());
 
