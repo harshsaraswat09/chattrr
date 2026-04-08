@@ -1,1 +1,1 @@
-export const BACKEND_URL = "ws://localhost:3000";
+export const BACKEND_URL = "https://chattrr-n8aa.onrender.com";
